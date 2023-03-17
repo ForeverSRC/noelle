@@ -3,7 +3,8 @@ package level
 import "math/rand"
 
 const (
-	defaultMaxLevel = 16
+	// level from 0 to 15
+	defaultMaxLevel = 15
 	defaultP        = 0.25
 )
 
