@@ -28,7 +28,7 @@ type SkipList[K constraints.Ordered, V any] struct {
 
 func NewSkipList[K constraints.Ordered, V any](lg level.Generator) *SkipList[K, V] {
 	sl := &SkipList[K, V]{
-		level:          1,
+		level:          0,
 		levelGenerator: lg,
 		maxLevel:       lg.MaxLevel(),
 	}
@@ -42,13 +42,13 @@ func NewSkipList[K constraints.Ordered, V any](lg level.Generator) *SkipList[K, 
 
 func (sl *SkipList[K, V]) Search(searchKey K) (res V, found bool) {
 	x := sl.head
-	for i := sl.level; i >= 1; i-- {
+	for i := sl.level; i >= 0; i-- {
 		for x != nil && x.forward[i] != nil && x.forward[i].elem.Key < searchKey {
 			x = x.forward[i]
 		}
 	}
 
-	x = x.forward[1]
+	x = x.forward[0]
 	if x != nil && x.elem.Key == searchKey {
 		return x.elem.Value, true
 	} else {
@@ -62,14 +62,14 @@ func (sl *SkipList[K, V]) Insert(key K, value V) {
 	update := make([]*node[K, V], sl.maxLevel+1)
 
 	x := sl.head
-	for i := sl.level; i >= 1; i-- {
+	for i := sl.level; i >= 0; i-- {
 		for x != nil && x.forward[i] != nil && x.forward[i].elem.Key < searchKey {
 			x = x.forward[i]
 		}
 		update[i] = x
 	}
 
-	x = x.forward[1]
+	x = x.forward[0]
 	elem := Element[K, V]{Key: key, Value: value}
 	if x != nil && x.elem.Key == searchKey {
 		x.elem = elem
@@ -84,17 +84,17 @@ func (sl *SkipList[K, V]) Delete(key K) {
 	update := make([]*node[K, V], sl.maxLevel+1)
 
 	x := sl.head
-	for i := sl.level; i >= 1; i-- {
+	for i := sl.level; i >= 0; i-- {
 		for x != nil && x.forward[i] != nil && x.forward[i].elem.Key < searchKey {
 			x = x.forward[i]
 		}
 		update[i] = x
 	}
 
-	x = x.forward[1]
+	x = x.forward[0]
 
 	if x != nil && x.elem.Key == searchKey {
-		for i := 1; i <= sl.level; i++ {
+		for i := 0; i <= sl.level; i++ {
 			if update[i].forward[i] != x {
 				break
 			}
@@ -104,7 +104,7 @@ func (sl *SkipList[K, V]) Delete(key K) {
 
 		x.helpGC()
 
-		for sl.level > 1 && sl.head.forward[sl.level] == nil {
+		for sl.level > 0 && sl.head.forward[sl.level] == nil {
 			sl.level--
 		}
 	}
@@ -124,7 +124,7 @@ func (sl *SkipList[K, V]) addNode(elem Element[K, V], update []*node[K, V]) {
 	n := &node[K, V]{elem: elem}
 	n.forward = make([]*node[K, V], lvl+1)
 
-	for i := 1; i <= lvl; i++ {
+	for i := 0; i <= lvl; i++ {
 		n.forward[i] = update[i].forward[i]
 		update[i].forward[i] = n
 	}

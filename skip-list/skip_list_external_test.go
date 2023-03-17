@@ -38,7 +38,7 @@ func TestInsertAndDelete(t *testing.T) {
 		{Key: "f", Value: 18},
 	}
 
-	levels := []int{1, 4, 2, 1, 1, 2, 1, 3, 1, 1}
+	levels := []int{0, 3, 1, 0, 0, 1, 0, 2, 0, 0}
 
 	expects := [][]skip_list.Element[string, int]{
 		{
@@ -78,15 +78,14 @@ func TestInsertAndDelete(t *testing.T) {
 		sl.Insert(e.Key, e.Value)
 	}
 
-	assert.Equal(t, 4, sl.GetLevel())
-	for i, exps := range expects {
-		lvl := i + 1
+	assert.Equal(t, 3, sl.GetLevel())
+	for lvl, exps := range expects {
 		res := sl.LevelIteration(lvl)
 		assert.Equalf(t, exps, res, "not equal, level: %d", lvl)
 	}
 
 	sl.Delete("b")
-	assert.Equal(t, 3, sl.GetLevel())
+	assert.Equal(t, 2, sl.GetLevel())
 	expectsAfterDelete := [][]skip_list.Element[string, int]{
 		{
 			{Key: "a", Value: 3},
@@ -109,8 +108,7 @@ func TestInsertAndDelete(t *testing.T) {
 		},
 	}
 
-	for i, exps := range expectsAfterDelete {
-		lvl := i + 1
+	for lvl, exps := range expectsAfterDelete {
 		res := sl.LevelIteration(lvl)
 		assert.Equalf(t, exps, res, "not equal, level: %d", lvl)
 	}
